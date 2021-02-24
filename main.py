@@ -44,17 +44,6 @@ def uploadFile(filename,filepath,mimetype):
                                         fields='id').execute()
     print('File ID: %s' % file.get('id'))
 
-def downloadFile(file_id,filepath):
-    request = drive_service.files().get_media(fileId=file_id)
-    fh = io.BytesIO()
-    downloader = MediaIoBaseDownload(fh, request)
-    done = False
-    while done is False:
-        status, done = downloader.next_chunk()
-        print("Download %d%%." % int(status.progress() * 100))
-    with io.open(filepath,'wb') as f:
-        fh.seek(0)
-        f.write(fh.read())
 
 def createFolder(name):
     file_metadata = {
@@ -77,6 +66,6 @@ def searchFile(size,query):
             print(item)
             print('{0} ({1})'.format(item['name'], item['id']))
 #uploadFile('unnamed.jpg','unnamed.jpg','image/jpeg')
-#downloadFile('1Knxs5kRAMnoH5fivGeNsdrj_SIgLiqzV','google.jpg')
 #createFolder('Google')
-searchFile(10,"name contains 'Getting'")
+#uploadFile('prueba.txt', 'Reto/prueba.txt','text/txt')
+listFiles(3)
