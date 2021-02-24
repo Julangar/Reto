@@ -1,5 +1,7 @@
 from __future__ import print_function
 import httplib2
+from flask import Flask, render_template, request
+from werkzeug.utils import secure_filename
 import os, io
 
 from apiclient import discovery
@@ -54,17 +56,39 @@ def createFolder(name):
                                         fields='id').execute()
     print ('Folder ID: %s' % file.get('id'))
 
-def searchFile(size,query):
-    results = drive_service.files().list(
-    pageSize=size,fields="nextPageToken, files(id, name, kind, mimeType)",q=query).execute()
-    items = results.get('files', [])
-    if not items:
-        print('No files found.')
-    else:
-        print('Files:')
-        for item in items:
-            print(item)
-            print('{0} ({1})'.format(item['name'], item['id']))
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+   return render_template('index.html')
+
+@app.route('/upload')
+def upload_file():
+   return render_template('upload.html')
+
+@app.route('/uploader', methods = ['POST'])
+def uploader_file():
+    if request.method == 'POST':
+        f = request.files['file']
+        f.save(os.path.join(app.root_path, 'Reto', secure_filename(f.filename)))
+        uploadFile(f.filename,"Reto/"+f.filename,"/."+f.filename.split(".")[1])   
+
+    return render_template('index.html', msg = "file loaded successfully")
+
+@app.route('/crearc')
+def crearc():
+   return render_template('crearCarpeta.html')
+
+@app.route('/creadorc', methods = ['GET' ,'POST'])
+def creadorc():
+    nombre = request.args.get('nombre')  
+    createFolder(nombre)
+    return render_template('index.html', msg = "folder loaded successfully")
+
+if __name__ == '__main__':
+   app.run(debug = True)
+
 #uploadFile('unnamed.jpg','unnamed.jpg','image/jpeg')
 #createFolder('Google')
 #uploadFile('prueba.txt', 'Reto/prueba.txt','text/txt')
